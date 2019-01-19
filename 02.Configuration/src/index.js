@@ -1,5 +1,8 @@
-let sayHello = (name) => {
-    alert('Hello ' + name);
-};
+//es6
+//import sayHello from './sayHello';
+
+//nodeJS
+const sayHello = require('./sayHello');
+
 sayHello('Wesley');
 sayHello('Tommy');
