@@ -1,5 +1,5 @@
 let sayHello = (name) => {
-    alert('Hello ' + name);
+    console.log('Hello ' + name);
 };
 
 //es6

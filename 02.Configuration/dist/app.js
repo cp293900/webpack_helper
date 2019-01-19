@@ -93,7 +93,14 @@
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("//import sayHello from './sayHello.js';\r\nconst sayHello = __webpack_require__(/*! ./sayHello */ \"./src/sayHello.js\");\r\n\r\nsayHello('Wesley');\r\nsayHello('Tommy');\n\n//# sourceURL=webpack:///./src/index.js?");
+//es6
+//import sayHello from './sayHello';
+
+//nodeJS
+const sayHello = __webpack_require__(/*! ./sayHello */ "./src/sayHello.js");
+
+sayHello('Wesley');
+sayHello('Tommy');
 
 /***/ }),
 
@@ -104,8 +111,17 @@ eval("//import sayHello from './sayHello.js';\r\nconst sayHello = __webpack_requ
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("let sayHello = (name) => {\r\n    alert('Hello ' + name);\r\n};\r\n\r\nmodule.exports = sayHello;\n\n//# sourceURL=webpack:///./src/sayHello.js?");
+let sayHello = (name) => {
+    console.log('Hello ' + name);
+};
+
+//es6
+//export default sayHello;
+
+//nodeJS
+module.exports = sayHello;
 
 /***/ })
 
 /******/ });
+//# sourceMappingURL=app.js.map

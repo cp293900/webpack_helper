@@ -17,7 +17,7 @@ yarn webpack --mode development
 警告訊息就不再出現了，開啟編譯過的 js 會發現 production 的 js 已經做過 minify，但 development 沒有，所以 development 在開發中方便開發者進行除錯， 等產品完成再使用 production 發佈， 不過我們所寫的 code 在 development 中直接被 eval 包起來，一樣不利於我們除錯，後續再解決。
 
 ### 以設定指令方式建置
-由於每次都要打這麼長的指令，不符合懶人精神，所以要在package.json內寫一點東西縮短建置的指令，加入 scripts 的部分，其他的節點說明可以參考 [npm-package.json](https://docs.npmjs.com/files/package.json)
+由於每次都要打這麼長的指令，不符合懶人精神，所以要在 package.json 內寫一點東西縮短建置的指令，加入 scripts 的部分，其他的節點說明可以參考 [npm-package.json](https://docs.npmjs.com/files/package.json)
 ```json
 {
   "name": "webpack_helper",
@@ -37,7 +37,7 @@ yarn webpack --mode development
 yarn build-dev
 yarn build-prod
 ```
-再內部可以使用 run 指令來跑指定 script 如 prebuild 執行後會執行 build-dev 指令，但目前不支援放多個指令，如有需求可以安裝 npm-run-all 等相關套件來擴充指令能力，這裡也發現一個問題如果取名為 prebuild-dev ，這樣指令名稱跟 build-dev 重疊，在執行 prebuild-dev 時就會開始無限迴圈，須注意。
+而內部可以使用 run 指令來跑指定 script 如 prebuild 執行後會執行 build-dev 指令，不過目前不支援放多個指令，如有需求可以安裝 npm-run-all 等相關套件來擴充指令能力，這裡也發現一個問題如果取名為 prebuild-dev ，這樣指令名稱跟 build-dev 重疊，在執行 prebuild-dev 時就會開始無限迴圈，須注意。
 
 ### 使用 webpack 設定檔建置
 這裡算是正式開始接觸 webpack 設定檔，所有的套件通常都會設定再裡面，首先先新增資料夾config，然後在資料夾新增 webpack.config.prod.js、webpack.config.dev.js ，這兩個就是設定檔，然後寫一些基本的東西在裡面：
@@ -66,7 +66,7 @@ module.exports = {
 ```
 可以看到引用了套件 path，這裡要先說明有些語法與套件只屬於 nodeJS ，像是 `require` 方法與 `path` 套件、 `__dirname` 的變數。
 
-接下來修改一下package.json，將設定指向設定檔
+接下來修改一下 package.json ，將設定指向設定檔
 ```json
 "scripts": {
     "build-dev": "webpack --config config\\webpack.config.dev.js",
@@ -89,7 +89,7 @@ module.exports = {
     }
 };
 ```
-接下來修改 webpack.config.dev.js 與 webpack.config.prod.js，將 base 引用後使用 Object.assign 方法複製出來修改：
+接下來修改 webpack.config.dev.js 與 webpack.config.prod.js，將 base 引用後使用 Object.assign 方法複製出來修改，或是也可以使用 [webpack-merge](https://github.com/survivejs/webpack-merge) 套件做 config 的合併：
 
 ```js
 //webpack.config.dev.js
@@ -105,6 +105,17 @@ webpack_prod.output.filename = 'app.min.js';
 module.exports = webpack_prod;
 ```
 好了，一樣執行指令，就會產生 app.js 與 app.min.js。
+
+### 除錯
+先前提到，建置後的 js 會被 webpack 預設使用 eval 包起來，這樣不利於瀏覽器上 debug ， webpack 在設定上提供 [devtool](https://webpack.js.org/configuration/devtool/) 的選項，這裡提兩個之後會用到的參數 source-map 與 cheap-module-source-map，修改一下 webpack.config.base ，一樣進行編譯一下：
+```js
+module.exports = {
+    ...,
+    devtool: 'source-map' //或 'cheap-module-source-map'
+}
+```
+* 在 source-map 的選項可以發現，程式碼沒有變，但會產生 app.js.map 的檔案，使用 chrome 瀏覽器進行除錯時， chrome 會自動偵測到 map 檔案來擷取還原執行的程式碼以利下中斷點
+* 在 cheap-module-source-map 的選項可以發現，原本的程式碼不會被 eval 包住，不過還是會有一個 map 檔案，只是檔案內容更簡短，一樣可以讓 chrome 做對照除錯，但不一樣的是就算沒有 map 檔也是可以除錯，因為原本的程式沒有被 eval 包住。
 
 ### 結語
 由於 webpack 設定檔就是 javascript 所以寫法可以變換多端，目前已經有很多開源可以參考，像是 React 可以做到非常複雜的設定方式，所以這是 webpack 強大且廣泛使用的原因之一。
