@@ -101,6 +101,7 @@ const sayHello = __webpack_require__(/*! ./sayHello */ "./src/sayHello.js");
 
 sayHello('Wesley');
 sayHello('Tommy');
+sayHello('Anita');
 
 /***/ }),
 
