@@ -42,6 +42,3 @@ devServer: {
 
 ### 自動編譯
 使用 webpack-dev-server `--watch` 要改成 `--watchContentBase` 或是寫進 devServer 屬性裡，啟動 server 後不管編輯 index.html 或是 js 瀏覽器會自動重新整理。
-
-### 結語
-由於 webpack 設定檔就是 javascript 所以寫法可以變換多端，目前已經有很多開源可以參考，像是 React 可以做到非常複雜的設定方式，所以這是 webpack 強大且廣泛使用的原因之一。
