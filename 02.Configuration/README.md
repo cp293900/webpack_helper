@@ -117,5 +117,31 @@ module.exports = {
 * 在 source-map 的選項可以發現，程式碼沒有變，但會產生 app.js.map 的檔案，使用 chrome 瀏覽器進行除錯時， chrome 會自動偵測到 map 檔案來擷取還原執行的程式碼以利下中斷點
 * 在 cheap-module-source-map 的選項可以發現，原本的程式碼不會被 eval 包住，不過還是會有一個 map 檔案，只是檔案內容更簡短，一樣可以讓 chrome 做對照除錯，但不一樣的是就算沒有 map 檔也是可以除錯，因為原本的程式沒有被 eval 包住。
 
+### 簡易 server
+大多數的情況需要 server 執行的環境下 javascript 才能正常運行，如 ajax ， webpack 有套件讓我們啟動一個簡單的 server 來跑環境，首先要先安裝套件 [webpack-dev-server](https://webpack.js.org/configuration/dev-server/#src/components/Sidebar/Sidebar.jsx)：
+```bash
+yarn add webpack-dev-server --dev
+```
+然後修改一下 webconfig.config.base
+```js
+module.exports = {
+    ...,
+    devServer: {
+        //server 會自動偵測路徑有沒有 index.html 作為首頁， 沒有則會以檔案列表形式呈現
+        contentBase: path.resolve(__dirname, '../'), 
+        compress: true,
+        port: 9000
+    }
+}
+```
+執行指令直接把 webpack 改成 webpack-dev-server 就行了，加入 package.json ，然後執行 yarn run-dev ， server 在編譯後便會啟動，在瀏覽器輸入 localhost:9000 就會出現畫面：
+```json
+scripts": {
+    ...,
+    "run-dev": "webpack-dev-server --config config\\webpack.config.dev.js"
+}
+``` 
+若要停止 server 可以按 `Ctrl` + `C` 停止。
+
 ### 結語
 由於 webpack 設定檔就是 javascript 所以寫法可以變換多端，目前已經有很多開源可以參考，像是 React 可以做到非常複雜的設定方式，所以這是 webpack 強大且廣泛使用的原因之一。

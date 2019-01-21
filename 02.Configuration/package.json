@@ -7,11 +7,13 @@
   "license": "MIT",
   "devDependencies": {
     "webpack": "^4.28.4",
-    "webpack-cli": "^3.2.1"
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.1.14"
   },
   "scripts": {
     "build-dev": "webpack --config config\\webpack.config.dev.js",
     "build-prod": "webpack --config config\\webpack.config.prod.js",
-    "prebuild": "yarn run build-dev"
+    "prebuild": "yarn run build-dev",
+    "run-dev": "webpack-dev-server --config config\\webpack.config.dev.js"
   }
 }

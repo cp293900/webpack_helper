@@ -7,5 +7,10 @@ module.exports = {
         filename: 'app.js',
         path: path.resolve(__dirname, '../dist')
     },
-    devtool: 'cheap-module-source-map'
+    devtool: 'cheap-module-source-map',
+    devServer: {
+        contentBase: path.resolve(__dirname, '../'),
+        compress: true,
+        port: 9000
+    }
 };
