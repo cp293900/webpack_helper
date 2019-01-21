@@ -2,15 +2,21 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/index.js',
+    entry: {
+        app: './src/index.js'
+    },
     output: {
-        filename: 'app.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, '../dist')
     },
-    devtool: 'cheap-module-source-map',
     devServer: {
-        contentBase: path.resolve(__dirname, '../'),
+        contentBase: [
+            path.resolve(__dirname, '../dist'),
+            path.resolve(__dirname, '../views')
+        ],
+        port: 9000,
+        open: true,
         compress: true,
-        port: 9000
+        watchContentBase: true
     }
 };

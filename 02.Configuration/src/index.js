@@ -6,3 +6,4 @@ const sayHello = require('./sayHello');
 
 sayHello('Wesley');
 sayHello('Tommy');
+sayHello('Anita');

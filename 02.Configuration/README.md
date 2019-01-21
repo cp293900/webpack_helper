@@ -64,9 +64,25 @@ module.exports = {
     }
 };
 ```
-可以看到引用了套件 path，這裡要先說明有些語法與套件只屬於 nodeJS ，像是 `require` 方法與 `path` 套件、 `__dirname` 的變數。
+* mode 應該不用說明了。
+* entry 指要編譯的檔案，也可以使用陣列如：
+```js
+entry: {
+    app: './src/index.js',
+    utils: ['./src/util-1.js', './src/util-2.js']
+}
+```
+* output 輸出必須使用絕對路徑，所以透過 path 方法來組合絕對路徑，可以透過`[name]`來取得 entry 的別名：
+```js
+output: {
+    filename: '[name].js', //輸出 app.js 與 utils.js
+    ...
+}
+```
 
-接下來修改一下 package.json ，將設定指向設定檔
+這裡要先說明有些語法與套件只屬於 nodeJS ，像是 `require` 方法與 `path` 套件、 `__dirname` 的變數，上面設定很死版，但要記得 javascript 很活，制式的設定可以用更動態的方式來做組合設定，要寫多少程式在裡面無所謂，只要最後 moudule.exports 的東西讓 webpack 看得懂就好。
+
+接下來修改一下 package.json ，將設定指向設定檔，一樣執行指令，就會產生 app.js 與 app.min.js：
 ```json
 "scripts": {
     "build-dev": "webpack --config config\\webpack.config.dev.js",
@@ -74,7 +90,6 @@ module.exports = {
     ...
 }
 ```
-好了，一樣執行指令，就會產生 app.js 與 app.min.js。
 
 但是我們不滿足，因為這兩個檔案其實相似度高，應該是可以重構的，沒錯我們就來重構將一樣的部分提出來，首先 config 資料夾新增 webpack.config.base.js 作為上層內容與 webpack.config.dev 一樣：
 ```js
@@ -89,7 +104,8 @@ module.exports = {
     }
 };
 ```
-接下來修改 webpack.config.dev.js 與 webpack.config.prod.js，將 base 引用後使用 Object.assign 方法複製出來修改，或是也可以使用 [webpack-merge](https://github.com/survivejs/webpack-merge) 套件做 config 的合併：
+
+最後修改 webpack.config.dev.js 與 webpack.config.prod.js，將 base 引用後使用 Object.assign 方法複製出來修改，或是也可以使用 [webpack-merge](https://github.com/survivejs/webpack-merge) 套件做 config 的合併，一樣執行指令，就會產生 app.js 與 app.min.js：
 
 ```js
 //webpack.config.dev.js
@@ -104,18 +120,21 @@ webpack_prod.mode = 'production';
 webpack_prod.output.filename = 'app.min.js';
 module.exports = webpack_prod;
 ```
-好了，一樣執行指令，就會產生 app.js 與 app.min.js。
 
 ### 除錯
-先前提到，建置後的 js 會被 webpack 預設使用 eval 包起來，這樣不利於瀏覽器上 debug ， webpack 在設定上提供 [devtool](https://webpack.js.org/configuration/devtool/) 的選項，這裡提兩個之後會用到的參數 source-map 與 cheap-module-source-map，修改一下 webpack.config.base ，一樣進行編譯一下：
+先前提到，建置後的 js 會被 webpack 預設使用 eval 包起來，這樣不利於瀏覽器上 debug ， webpack 在設定上提供 [devtool](https://webpack.js.org/configuration/devtool/) 的選項，這裡提之後會用到的參數 none 、 eval 、 source-map 與 cheap-module-source-map，可以修改一下 config ，看編譯後的結果：
 ```js
 module.exports = {
     ...,
     devtool: 'source-map' //或 'cheap-module-source-map'
 }
 ```
-* 在 source-map 的選項可以發現，程式碼沒有變，但會產生 app.js.map 的檔案，使用 chrome 瀏覽器進行除錯時， chrome 會自動偵測到 map 檔案來擷取還原執行的程式碼以利下中斷點
+* 在 none 的選項，原本的程式碼不會被 eval 包住。
+* 在 eval 的選項，為預設選項，程式碼被 eval 包住。
+* 在 source-map 的選項可以發現，程式碼沒有變，但會產生 app.js.map 的檔案，使用 chrome 瀏覽器進行除錯時， chrome 會自動偵測到 map 檔案來擷取還原執行的程式碼以利下中斷點。
 * 在 cheap-module-source-map 的選項可以發現，原本的程式碼不會被 eval 包住，不過還是會有一個 map 檔案，只是檔案內容更簡短，一樣可以讓 chrome 做對照除錯，但不一樣的是就算沒有 map 檔也是可以除錯，因為原本的程式沒有被 eval 包住。
+
+我的需求最後選擇，dev 使用 none ， prod 使用 cheap-module-source-map，方便進行工作。
 
 ### 簡易 server
 大多數的情況需要 server 執行的環境下 javascript 才能正常運行，如 ajax ， webpack 有套件讓我們啟動一個簡單的 server 來跑環境，首先要先安裝套件 [webpack-dev-server](https://webpack.js.org/configuration/dev-server/#src/components/Sidebar/Sidebar.jsx)：
@@ -128,8 +147,10 @@ module.exports = {
     ...,
     devServer: {
         //server 會自動偵測路徑有沒有 index.html 作為首頁， 沒有則會以檔案列表形式呈現
-        contentBase: path.resolve(__dirname, '../'), 
-        compress: true,
+        contentBase: [
+            path.resolve(__dirname, '../dist'), 
+            path.resolve(__dirname, '../views')
+        ],
         port: 9000
     }
 }
@@ -141,7 +162,25 @@ scripts": {
     "run-dev": "webpack-dev-server --config config\\webpack.config.dev.js"
 }
 ``` 
-若要停止 server 可以按 `Ctrl` + `C` 停止。
+若要停止 server 可以按 `Ctrl` + `C` 停止，以下還有一些常用的設定：
+```js
+devServer: {
+    compress: true,        // 使用 gzip 壓縮
+    index: 'index.html',   // 指定首頁
+    host: '0.0.0.0',       // 預設是 localhost，設定則可讓外網存取
+    open: true,            // 打開瀏覽器
+    watchContentBase: true // 啟用 watch
+}
+```
+
+### 自動編譯
+工程師的一大希望就是當編寫程式時，編譯器如果能邊自動編譯那就好了，瀏覽器最好也能自動刷新，例如寫javascript 或是 css 時可以不用先打指令編譯再按 f5 重新整理瀏覽器，讓作業過程更順暢，而 webpack、gulp 自動化都可以滿足這些功能， webpack 提供了 [watch](https://webpack.js.org/configuration/watch/#src/components/Sidebar/Sidebar.jsx) 的功能，可以打指令或是加進 package.json 裡：
+```bash
+yarn build-dev --watch // 或 -w
+```
+可以發現 console 編譯完後並未結束，如果這時候去改 js 就可以看到 console 馬上會自動編譯重新生成 app.js ， 可以按 `Ctrl` + `C` 停止自動編譯的行為。
+
+但如果使用 webpack-dev-server 要改成 `--watchContentBase` 或是寫進 devServer 屬性裡，啟動 server 後不管編輯 index.html 或是 js 瀏覽器會自動重新整理。
 
 ### 結語
 由於 webpack 設定檔就是 javascript 所以寫法可以變換多端，目前已經有很多開源可以參考，像是 React 可以做到非常複雜的設定方式，所以這是 webpack 強大且廣泛使用的原因之一。

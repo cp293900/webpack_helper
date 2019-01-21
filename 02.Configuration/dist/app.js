@@ -124,4 +124,3 @@ module.exports = sayHello;
 /***/ })
 
 /******/ });
-//# sourceMappingURL=app.js.map
