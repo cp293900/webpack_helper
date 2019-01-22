@@ -16,6 +16,8 @@ yarn webpack --mode development
 ```
 警告訊息就不再出現了，開啟編譯過的 js 會發現 production 的 js 已經做過 minify，但 development 沒有，所以 development 在開發中方便開發者進行除錯， 等產品完成再使用 production 發佈， 不過我們所寫的 code 在 development 中直接被 eval 包起來，一樣不利於我們除錯，後續再解決。
 
+據說 Webpack4 自帶 UglifyJs ， production 才會有 minify 的功能，但如果要更多的設定一樣還是要安裝 uglifyjs-webpack-plugin 做設定的取代，可閱讀 [从实践中寻找webpack4最优配置](https://segmentfault.com/a/1190000015032321)，但目前可以看到 minify 的結果是可以接受的，連註釋都移除了。
+
 ### 以設定指令方式建置
 由於每次都要打這麼長的指令，不符合懶人精神，所以要在 package.json 內寫一點東西縮短建置的指令，加入 scripts 的部分，其他的節點說明可以參考 [npm-package.json](https://docs.npmjs.com/files/package.json)
 ```json

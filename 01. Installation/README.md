@@ -3,6 +3,11 @@
 ### 前言
 斷斷續續學習前端技術，學了又忘，忘了再學，相當沒有效率，webpack在各種模組的設定中不一致，所以使用markdown來記錄學習過程。
 
+在開始之前，可以先讀過以下文章，感受一下前端設計的演進與亂象：
+* [2016 年度 JavaScript 潮流：請徹底拋棄 jQuery](https://buzzorange.com/techorange/2016/10/25/2016-programming-language/)
+* [零基礎的小明要如何成為前端工程師？](https://medium.com/hulis-blog/frontend-engineer-guide-297821512f4e)
+* [webpack 为什么这么难用？](https://zhuanlan.zhihu.com/p/32148338)
+
 ### 為何使用 webpack
 前端開發已經變成相對複雜，很多事情需要自動化，如 scss、less 編譯成 css ，撰寫 es6 但為了瀏覽器要編譯成 es5，或是寫 js library 需要做 minify 等等，故需要一項工具來協助做自動化，而 webpack 是目前最廣泛使用的工具。
 
