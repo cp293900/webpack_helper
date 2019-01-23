@@ -42,7 +42,9 @@ yarn build-prod
 而內部可以使用 run 指令來跑指定 script 如 prebuild 執行後會執行 build-dev 指令，不過目前不支援放多個指令，如有需求可以安裝 npm-run-all 等相關套件來擴充指令能力，這裡也發現一個問題如果取名為 prebuild-dev ，這樣指令名稱跟 build-dev 重疊，在執行 prebuild-dev 時就會開始無限迴圈，須注意。
 
 ### 使用 webpack 設定檔建置
-這裡算是正式開始接觸 webpack 設定檔，所有的套件通常都會設定再裡面，首先先新增資料夾config，然後在資料夾新增 webpack.config.prod.js、webpack.config.dev.js ，這兩個就是設定檔，然後寫一些基本的東西在裡面：
+這裡算是正式開始接觸 webpack 設定檔，所有的套件通常都會設定再裡面，在 Webpack4 出現後可以開始使用 `yarn webpack init` 來互動式產生設定檔，不過我們這裡要做變化型，建議互動產生可以先自己嘗試看看。
+
+首先先新增資料夾config，然後在資料夾新增 webpack.config.prod.js、webpack.config.dev.js ，這兩個就是設定檔，然後寫一些基本的東西在裡面：
 ```js
 //webpack.config.dev.js
 const path = require('path');
