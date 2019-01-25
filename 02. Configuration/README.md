@@ -42,9 +42,120 @@ yarn build-prod
 而內部可以使用 run 指令來跑指定 script 如 prebuild 執行後會執行 build-dev 指令，不過目前不支援放多個指令，如有需求可以安裝 npm-run-all 等相關套件來擴充指令能力，這裡也發現一個問題如果取名為 prebuild-dev ，這樣指令名稱跟 build-dev 重疊，在執行 prebuild-dev 時就會開始無限迴圈，須注意。
 
 ### 使用 webpack 設定檔建置
-這裡算是正式開始接觸 webpack 設定檔，所有的套件通常都會設定再裡面，在 Webpack4 出現後可以開始使用 `yarn webpack init` 來互動式產生設定檔，不過我們這裡要做變化型，建議互動產生可以先自己嘗試看看。
+這裡算是正式開始接觸 webpack 設定檔，所有的套件通常都會設定再裡面，在 Webpack4 出現後可以開始使用 `yarn webpack init` 來互動式產生設定檔，不過要先裝 `@webpack-cli/init` 套件，以下是互動式問答的過程：
+```bash
+? Will your application have multiple bundles? (Y/n) Y //要編譯成多個 js 檔案嗎?
+? Type the names you want for your modules (entry files), separated by comma [example: app,vendor] app,test //幫你要編譯的多個 js 檔取名 
+? What is the location of "app"? [example: ./src/app] ./src/app //app.js 的來源碼在哪
+? What is the location of "test"? [example: ./src/test] ./test/test //test.js 的來源碼在哪
+? Which folder will your generated bundles be in? [default: dist]: dist //編譯後的app.js & test.js 要放哪個資料夾
+? Will you be using ES2015? (Y/n) Y //你使用 es5 嗎
+? Will you use one of the below CSS solutions? (Use arrow keys) //你會使用 css 套件嗎
+> SASS
+  LESS
+  CSS
+  PostCSS
+  No
+```
+然後就會連幫你該安裝的套件，如 sass 、 babel 安裝好，最後產出 webconfig.dev.js，看一下內容：
+```js
+const webpack = require('webpack');
+const path = require('path');
 
-首先先新增資料夾config，然後在資料夾新增 webpack.config.prod.js、webpack.config.dev.js ，這兩個就是設定檔，然後寫一些基本的東西在裡面：
+/*
+ * SplitChunksPlugin is enabled by default and replaced
+ * deprecated CommonsChunkPlugin. It automatically identifies modules which
+ * should be splitted of chunk by heuristics using module duplication count and
+ * module category (i. e. node_modules). And splits the chunks…
+ *
+ * It is safe to remove "splitChunks" from the generated configuration
+ * and was added as an educational example.
+ *
+ * https://webpack.js.org/plugins/split-chunks-plugin/
+ *
+ */
+
+/*
+ * We've enabled UglifyJSPlugin for you! This minifies your app
+ * in order to load faster and run less javascript.
+ *
+ * https://github.com/webpack-contrib/uglifyjs-webpack-plugin
+ *
+ */
+
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+
+module.exports = {
+	module: {
+		rules: [
+			{
+				include: [path.resolve(__dirname, 'src')],
+				loader: 'babel-loader',
+
+				options: {
+					plugins: ['syntax-dynamic-import'],
+
+					presets: [
+						[
+							'@babel/preset-env',
+							{
+								modules: false
+							}
+						]
+					]
+				},
+
+				test: /\.js$/
+			},
+			{
+				test: /\.(scss|css)$/,
+
+				use: [
+					{
+						loader: 'style-loader'
+					},
+					{
+						loader: 'css-loader'
+					},
+					{
+						loader: 'sass-loader'
+					}
+				]
+			}
+		]
+	},
+
+	entry: {
+		app: './src/app.js',
+		test: './test/test.js'
+	},
+
+	output: {
+		filename: '[name].[chunkhash].js',
+		path: path.resolve(__dirname, 'dist')
+	},
+
+	mode: 'development',
+
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				vendors: {
+					priority: -10,
+					test: /[\\/]node_modules[\\/]/
+				}
+			},
+
+			chunks: 'async',
+			minChunks: 1,
+			minSize: 30000,
+			name: true
+		}
+	}
+};
+```
+
+以上先看過就好，我們要從空白開始且要做點變化型，首先先新增資料夾config，然後在資料夾新增 webpack.config.prod.js、webpack.config.dev.js ，這兩個就是設定檔，然後寫一些基本的東西在裡面：
 ```js
 //webpack.config.dev.js
 const path = require('path');

@@ -76,7 +76,7 @@ npx webpack
 or
 yarn webpack
 ```
-3. 會發現出現了 dist 的資料夾，裡面已經有編譯成 es5 的 main.js
+3. 會發現出現了 dist 的資料夾，裡面已經有編譯成 es5 的 main.js，之所以編譯成功是因為預設的 entry point 是 ./src/index.js，如果是其他 js 就會出現 <font color="red">`ERROR in Entry module not found: Error: Can't resolve './src'`</font> 的錯誤訊息。
 4. 但我們不喜歡 main.js 的名稱，故我們重下指令
 ```bash
 yarn webpack .\src\index.js -o .\dist\app.js
