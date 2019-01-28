@@ -7,14 +7,5 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'test.js'
-    },
-    module: {
-        rules: [
-            {
-                loader: 'mocha-loader',
-                test: /test\.js$/,
-                exclude: /node_modules/
-            }
-        ]
     }
 }

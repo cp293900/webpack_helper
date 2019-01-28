@@ -116,7 +116,7 @@ describe('Array', function() { //Array只是文字標題，讓開發者知道這
 
 然後下指令：
 ```bash
-yarn mocha
+yarn mocha .\test\test.js
 ```
 
 可以看到結果為：
@@ -168,6 +168,32 @@ info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this comm
 然後 forge 也只有使用內建的 assert 我目前就先不節外生枝做這些斷言庫的研究，到目前我們已經知道 forge 的 mocha + assert 的組合是怎麼一回事了。
 
 ### 結合 webpack
+安裝 webpack 、 webpack-cli 後，加入 webpack.config.test.js：
+```js
+const path = require('path');
+
+module.exports = {
+    mode: 'development',
+    devtool: 'none',
+    entry: './test/test.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'test.js'
+    }
+}
+```
+
+package.json 加入指令：
+```json
+"scripts": {
+    "build": "webpack --config webpack.config.test.js",
+    "test": "mocha .\\test\\test.js",
+    "test-build": "mocha .\\dist\\test.js"
+}
+```
+
+之後就可以先使用 `yarn-build` 編譯測試檔，再使用 `yarn test-build` 來測試編譯過後的測試檔，當然也可以讓 webpack 加入 babel 套件將測試程式轉譯成 es5 測試，可以參考 babel-loader 章節。
+
 接下來是最令人匪夷所思的部分，既然 mocha 可以單獨執行，只要在 package.json 加上指令 `"test":"mocha"` 就可以下 `yarn test` 執行單元測試，那為什麼還有 [webpack-mocha](https://www.npmjs.com/package/mocha-webpack) 、 [mocha-loader](https://webpack.js.org/loaders/mocha-loader/) 套件混淆視聽呢?
 
 #### webpack-mocha

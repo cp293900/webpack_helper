@@ -1,0 +1,11 @@
+{
+    "name": "webpack_helper",
+    "version": "1.0.0",
+    "repository": "https://github.com/cp293900/webpack_helper.git",
+    "author": "Wesley <wesley@jrsys.com.tw>",
+    "license": "MIT",
+    "devDependencies": {
+        "webpack": "^4.29.0",
+        "webpack-cli": "^3.2.1"
+    }
+}
