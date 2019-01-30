@@ -7,6 +7,7 @@
 * [2016 年度 JavaScript 潮流：請徹底拋棄 jQuery](https://buzzorange.com/techorange/2016/10/25/2016-programming-language/)
 * [零基礎的小明要如何成為前端工程師？](https://medium.com/hulis-blog/frontend-engineer-guide-297821512f4e)
 * [webpack 为什么这么难用？](https://zhuanlan.zhihu.com/p/32148338)
+* [網站如何開始使用 ES6 / ES2015 模組化技術進行前端開發](https://blog.miniasp.com/post/2019/01/29/How-to-get-start-with-ES6-ES2015-Modules-with-Parcel.aspx)
 
 ### 為何使用 webpack
 前端開發已經變成相對複雜，很多事情需要自動化，如 scss、less 編譯成 css ，撰寫 es6 但為了瀏覽器要編譯成 es5，或是寫 js library 需要做 minify 等等，故需要一項工具來協助做自動化，而 webpack 是目前最廣泛使用的工具。
@@ -42,6 +43,9 @@ var
     //在cmd下只輸入gulp build-css的動作
     gulp.task('build-css', 'Builds all css from source', lessTask);
 ```
+
+### 其他的選擇
+要怎麼看還有哪些其它的選擇，在 Babel 的官網裡的[Setup](https://babeljs.io/setup#installation)，看到 Build systems 所列的都是，所以你可以慢慢研究，或是乾脆先閉上眼睛先選一種來練，在亂世中還是要選一派靠邊站。
 
 ### 環境安裝
 使用 webpack 之前，建議先有一個 IDE 工具，我推薦使用 [vscode](https://code.visualstudio.com/)， 它可以直接輸入 cmd 指令比較方便，如果要使用記事本 + cmd 也是沒有問題，接下來要先安裝 [nodeJS](https://nodejs.org/en/) ，安裝 LTS 長期維護版本即可， nodeJS 會自帶 npm 的工具，所以便可以使用 npm 做安裝套件，接下來安裝 yarn ，你可以把它想成是 npm 的優化指令，基本上 npm 的指令與 yarn 指令相差不大，不使用也無彷。
