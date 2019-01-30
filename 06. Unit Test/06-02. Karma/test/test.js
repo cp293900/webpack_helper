@@ -1,7 +1,5 @@
-//const assert = require('assert');
-//const getMax = require('../src/max');
-import * as assert from 'assert';
-import getMax from '../src/max';
+const assert = require('assert');
+const getMax = require('../src/max');
 
 describe('Test', () => {
   it('should return 8', () => {

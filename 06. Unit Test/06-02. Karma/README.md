@@ -414,3 +414,205 @@ module.exports = function(config) {
 ```
 
 這樣就完成了，然後啟動 server 後會發現產生了 coverage 的資料夾，裡面有個 index.html 用瀏覽器打開來看看，它已經將報告做成網頁給你了，是不是相當的專業。
+
+### 網頁測試
+最後一個階段也是前端工程師的一個希望就是如果也可以測試到 html 的操作部分就好了，坊間應該是有可以錄行為的方法來做測試，但這裡指的測試是把動作寫在測試裡，所以要花點時間寫這些動作，如果是複雜一點的滾動之類的那應該更麻煩，這邊只先展示點輸入資料、擊按鈕這樣的行為。
+
+#### 寫測試網頁
+那我們就先設計一個需求網頁：  
+1. 使用者可以輸入數字 a 跟數字 b
+2. 按下計算按鈕後可以得到 a x b 的答案
+3. 若 a 或 b 非數字則輸出 0
+
+先前在 mocha 的章節有提到 BDD 有提供 beforeEach 、 afterEach 的方法，我們要先利用方法來建立測試網頁：
+1. 先建立 test/getProduct.test.js
+```js
+const assert = require('assert');
+
+describe('Test', () => {
+    const page = {
+        load: function() {
+            const fixture = 
+                '<div id="fixture">' +
+                    'a: <input id="a" type="text">' + 
+                    'b: <input id="b" type="text">' + 
+                    '<input id="btn_getProduct" type="button" value="計算">' +
+                    'a x b = <span id="result" />' + 
+                '</div>';
+    
+            document.body.insertAdjacentHTML('afterbegin', fixture);
+        },
+        init: function() {
+            const getProduct = require('../src/product');
+    
+            let getIntById = function(id) {
+                return parseInt(document.getElementById(id).value, 10);
+            };
+            
+            let calculate = function() {
+                var result = getProduct(getIntById('a'), getIntById('b'));
+                document.getElementById('result').innerHTML = isNaN(result) ? 0 : result;
+            }
+            
+            let btn_getProduct = document.getElementById('btn_getProduct');
+            if(btn_getProduct) {
+                btn_getProduct.addEventListener('click', calculate);
+            }
+        },
+        dispose: function() {
+            document.body.removeChild(document.getElementById('fixture'));
+        }
+    };
+
+    beforeEach(function() {
+        page.load();
+        page.init();
+    });
+
+    afterEach(function() {
+        page.dispose();
+    });
+});
+```
+
+上述的意思是"在每個測試之前"要在 body 的標籤內插入一段 html ， "測試結束後"要移除。  
+
+2. 新增 product 的乘法方法：
+```js
+module.exports = function getProduct(x, y) {
+    return x * y;
+}
+```
+
+3. 回到 test/getProduct.test.js 往下新增幾個測試方法
+```js
+const assert = require('assert');
+
+describe('Test', () => {
+    beforeEach(function() {
+        ...
+    });
+
+    afterEach(function() {
+        ...
+    });
+
+    let calculate = function(a, b) {
+        document.getElementById('a').value = a;
+	    document.getElementById('b').value = b;
+        document.getElementById('btn_getProduct').click();
+        return parseInt(document.getElementById('result').innerHTML, 10);
+    }
+
+    it('should return 8 for 2 x 4', () => {
+        assert.equal(calculate(2, 4), 8);
+    });
+
+    it('should return 24 for 6 x 4', () => {
+        assert.equal(calculate(6, 4), 24);
+    });
+
+    it('should return 0 for invalid a value', () => {
+        assert.equal(calculate('hello', 9), 0);
+    });
+
+    it('should return 0 for invalid b value', () => {
+        assert.equal(calculate(0, 'hi'), 0);
+    });
+});
+```
+
+然後啟動 server 試試看，可以看到有 5 個測試成功，1個測試失敗，跟預期的一樣。  
+
+如果想要看網頁的話可以把 afterEach 內的移除註解掉，然後開啟 server (記得改成非 headless 的瀏覽器)後按下 karma 提供的 debug 按鈕會跳出空白頁，只要重新整理就會重做一次測試，這時可以發現空白頁 render 了 5 筆測試，這就是所謂的用程式模擬動作測試的做法。
+
+#### 改善測試網頁
+之前我們把網頁的 html 以字串的方式直接寫在測試裡面，這種模式十分不方便，我們希望的是我直接就寫一個網頁然後用個方法把網頁讀進來就好了，當然如果 javascript 厲害的人直接刻這一段應該是沒有問題，但我們有這種需求想必應該也會有相應的套件，果不其然就有一個叫做 [karma-fixture](https://github.com/billtrik/karma-fixture) 在做這件事，在官網的介紹寫說這個套件可以讓 test runner 讀取 `.html` 與 `.json` ，馬上來試試看：
+```bash
+yarn add karma-fixture --dev
+```
+
+然後它的原理是讀取 html 的 js ，所以照官網的解釋還要安裝 karma-html2js-preprocessor 來把 html 轉成 js 的預處理工具，如果要讀 json 一樣要安裝 karma-json-fixtures-preprocessor 的預處理工具，這裡我們只安裝 :
+```bash
+yarn add karma-html2js-preprocessor --dev
+```
+
+然後按以下修改步驟 :
+1. 新增 views 資料夾來管理有關頁面與頁面用的 js
+2. 新增 views/getProduct.html，不用宣告 `html5` 、 `head` 、 `body`，只需要內容，原因是因為 fixture 讀取網頁後會把 html 安插在 `<div id="fixture_container"></div>` 的 tag 裡
+```html
+<div id="fixture">
+    a: <input id="a" type="text">
+    b: <input id="b" type="text"> 
+    <input id="btn_getProduct" type="button" value="計算"> &nbsp;
+    a x b = <span id="result"></span>
+</div>
+```
+3. 新增 views/getProduct.js :
+```js
+module.exports = function page_init() {
+    const getProduct = require('../src/product');
+    
+    let getIntById = function(id) {
+        return parseInt(document.getElementById(id).value, 10);
+    };
+    
+    let calculate = function() {
+        let result = getProduct(getIntById('a'), getIntById('b'));
+        document.getElementById('result').innerHTML = isNaN(result) ? 0 : result;
+    }
+    
+    let btn_getProduct = document.getElementById('btn_getProduct');
+    if(btn_getProduct) {
+        btn_getProduct.addEventListener('click', calculate);
+    }
+}
+```
+通常這是要給 html 引用的 `<script src="getProduct.js">` 但是無法這樣做的原因是 :
+1. webpack 會無法編譯到檔案
+2. 假設都使用 es5 語法，使用 window.onload 或是 (function(){}) 自起，會因為 beforeEach 的時機比較晚，註冊事件就會找不到按鈕
+3. fixture 安插進去可能不會觸發 script 載入
+
+所以寫成匯出的方式，再到測試檔呼叫。
+
+4. 修改 test/getProduct.test.js ，改由 fixture 匯入 :
+```js
+const assert = require('assert');
+const page_init = require('../views/getProduct');
+
+describe('Test', () => {
+    beforeEach(function() {
+        fixture.base = 'views'; //變更資料夾位置
+        fixture.load('getProduct.html');
+        page_init();
+    });
+
+    afterEach(function() {
+        fixture.cleanup();
+    });
+});
+```
+
+5. 修改 karma.conf.js
+```js
+module.exports = function(config) {
+  config.set({
+        ...,
+        frameworks: ['mocha', 'fixture'], //增加 fixture 框架
+        files: [
+            'src/*.js',
+            'test/*.js',
+            'views/*.html' //html 需要放進來
+        ],
+        preprocessors: {
+            'src/*.js': [ 'webpack', 'coverage' ],
+            'test/*.js': [ 'webpack' ],
+            'views/*.html': ['html2js'] //html 需要預轉成 js
+        },
+        ...
+  })
+}
+```
+這裡可能會問說 views/getProduct.js 不用加進去做處理嗎，其實不需要，因為 webpack 也會編譯有 require 到的檔案。  
+
+執行測試後，應該是沒有問題的，如果註解掉 `fixture.cleanup();` 去看網頁的生成應該是只有一筆，我"猜"是 fixture 有自行在讀取前有先做清空處理，karma 就到此先告一段落。
